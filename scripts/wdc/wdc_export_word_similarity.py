@@ -19,8 +19,6 @@ def compare_words(path: str, out_path: str, percent_threshold: int):
             ratio = fuzz.ratio(word, w)
             if ratio >= percent_threshold:
                 res.append((word, w, ratio))
-        # TODO remove
-        print(len(words))
     res = pd.DataFrame(res, columns=['word1', 'word2', 'percent'])
     export(res, os.path.join(OUTPUT_FOLDER, out_path))
 
