@@ -20,6 +20,7 @@ def compare_words(path: str, out_path: str, percent_threshold: int):
             if ratio >= percent_threshold:
                 res.append((word, w, ratio))
     res = pd.DataFrame(res, columns=['word1', 'word2', 'percent'])
+    res = res.sort_values(by='percent', ascending=False)
     export(res, os.path.join(OUTPUT_FOLDER, out_path))
 
 
