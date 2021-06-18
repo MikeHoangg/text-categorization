@@ -3,3 +3,8 @@ pandas
 matplotlib
 jupyter
 fuzzywuzzy[speedup]
+<<<<<<< Updated upstream
+=======
+python-box
+spacy
+>>>>>>> Stashed changes
