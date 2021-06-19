@@ -5,9 +5,8 @@ import multiprocessing as mp
 import datetime
 import uuid
 
-from main import OUTPUT_FOLDER, run, export
-
-RES_FOLDER = os.path.join(OUTPUT_FOLDER, 'wdc')
+from main import run, export
+from . import RES_FOLDER
 
 
 def process_chunk(chunk: pd.DataFrame, query: str) -> tuple:

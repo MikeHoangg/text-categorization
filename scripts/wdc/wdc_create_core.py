@@ -1,14 +1,11 @@
 import os
 import argparse
 import pandas as pd
-import spacy
 
 from datetime import datetime
 
-from main import OUTPUT_FOLDER, run, export
-
-RES_FOLDER = os.path.join(OUTPUT_FOLDER, 'wdc')
-NLP = spacy.load("en_core_web_sm")
+from main import run, export
+from . import RES_FOLDER, NLP
 
 
 def compare_words(path: str, out_path: str, percent_threshold: float):

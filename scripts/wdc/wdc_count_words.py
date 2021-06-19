@@ -1,16 +1,14 @@
 import os
+import re
 import argparse
 import pandas as pd
 import numpy as np
-import spacy
-import re
 
 from datetime import datetime
 
-from main import OUTPUT_FOLDER, run
+from main import run
+from . import RES_FOLDER, NLP
 
-RES_FOLDER = os.path.join(OUTPUT_FOLDER, 'wdc')
-NLP = spacy.load("en_core_web_sm")
 IS_WORD = re.compile(r'^[a-zA-Z]{3,}$')
 
 
@@ -21,13 +19,10 @@ def count_words(path: str, out_path: str, count_threshold: int = 50):
     words = []
     for title in data['title']:
         words += list(
-            map(
-                lambda y: y.text,
-                filter(
-                    lambda x: not x.is_stop and x.is_alpha and IS_WORD.match(x.text),
-                    NLP(title)
+            map(lambda y: y.text,
+                filter(lambda x: not x.is_stop and x.is_alpha and IS_WORD.match(x.text),
+                       NLP(title))
                 )
-            )
         )
     unique_words = set(words)
     print(f'started counting: {datetime.now()}, words len {len(unique_words)}')
