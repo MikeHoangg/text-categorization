@@ -1,50 +1,52 @@
 import os
-import re
 import argparse
+
 import pandas as pd
 import numpy as np
 
 from datetime import datetime
 
 from main import run, export, OUTPUT_FOLDER
-from scripts import NLP
+from nltk.tokenize import word_tokenize
 
-# todo: refactor this line
-IS_WORD = re.compile(r'^[a-zA-Z]{3,}$')
+from scripts import PUNCTUATION_TABLE, STOP_WORDS, STEMMER, SPACY_STOP_WORDS
 
 
-def count_words(path: str, out_path: str, count_threshold: int = 50):
+def count_words(path: str, out_path: str) -> pd.DataFrame:
     """
     Function for counting words in each text
     :param path: path of source file
     :param out_path: path of result file
-    :param count_threshold: threshold for filtering out words
     :return:
     """
-    print(f'threshold - {count_threshold}%')
     data = pd.read_json(path)
+    words = []
+
     # cleaning DataFrame from empty texts
     data['title'].replace('', np.nan, inplace=True)
     data.dropna(subset=['title'], inplace=True)
-    words = []
+
     for title in data['title']:
-        words += list(
-            map(lambda y: y.text,
-                filter(lambda x: not x.is_stop and x.is_alpha and IS_WORD.match(x.text),
-                       NLP(title))
-                )
-        )
-    unique_words = set(words)
-    print(f'started counting: {datetime.now()}, words len {len(unique_words)}')
-    res_data = []
-    for word in unique_words:
-        if word_count := words.count(word):
-            if word_count >= count_threshold:
-                res_data.append((word, word_count))
-    res = pd.DataFrame(res_data, columns=['word', 'count'])
-    res = res.sort_values(by='count', ascending=False)
-    out_path = os.path.join(OUTPUT_FOLDER, out_path)
-    export(res, out_path)
+        tokens = word_tokenize(title)
+        # lowercase all data
+        tokens = [w.lower() for w in tokens]
+        # clear punctuation
+        tokens = [w.translate(PUNCTUATION_TABLE) for w in tokens]
+        # clear not alphabetic
+        tokens = [w for w in tokens if w.isalpha()]
+        # clear stop words
+        tokens = [w for w in tokens if w not in STOP_WORDS and w not in SPACY_STOP_WORDS]
+        # stemming of words
+        tokens = [STEMMER.stem(w) for w in tokens]
+        words += tokens
+
+    print(f'started counting: {datetime.now()}, unique words len {len(set(words))}, words len {len(words)}')
+    count_series = pd.Series(words).value_counts()
+    print(f'finished counting: {datetime.now()}')
+
+    res = pd.DataFrame({'word': count_series.index, 'count': count_series.values})
+    export(res, os.path.join(OUTPUT_FOLDER, out_path))
+    return res
 
 
 @run

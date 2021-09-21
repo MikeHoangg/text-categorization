@@ -15,3 +15,8 @@ virtualenv venv
 ```
 pip install -r requirements
 ```
+4. install packages data:
+```
+python -m spacy download en
+python -m nltk.downloader all
+```
