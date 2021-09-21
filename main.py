@@ -5,10 +5,14 @@ from datetime import datetime
 
 BASE_FOLDER = os.getcwd()
 OUTPUT_FOLDER = os.path.join(BASE_FOLDER, 'data')
-PLOT_FIG_SIZE = (18, 5)
 
 
 def run(func):
+    """
+    Decorator that shows running time of a process
+    :param func: wrapped function
+    :return:
+    """
     def wrapper():
         start = datetime.now()
         print(f'start: {start}')
@@ -21,6 +25,12 @@ def run(func):
 
 
 def export(df: pd.DataFrame, file_path: str):
+    """
+    Function for exporting DataFrame to json file
+    :param df:
+    :param file_path:
+    :return:
+    """
     print(f'dataframe has {len(df)} rows')
     print(f'started exporting {file_path}: {datetime.now()}')
     df.to_json(file_path)

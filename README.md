@@ -15,11 +15,3 @@ virtualenv venv
 ```
 pip install -r requirements
 ```
-
-## Jupyter graphs:
-
-run:
-```
-make run-jupyter
-```
-in opened web page open `.ipynb` files to view graphs for predefined dataframes

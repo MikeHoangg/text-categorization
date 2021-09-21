@@ -1,7 +1,3 @@
 numpy
 pandas
-matplotlib
-jupyter
-fuzzywuzzy[speedup]
-python-box
 spacy
