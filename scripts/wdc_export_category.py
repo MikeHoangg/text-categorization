@@ -1,3 +1,7 @@
+"""
+Script for exporting particular product category from WDC dataset:
+http://data.dws.informatik.uni-mannheim.de/largescaleproductcorpus/data/v2/offers_corpus_english_v2.json.gz
+"""
 import os
 import argparse
 import pandas as pd
@@ -5,8 +9,7 @@ import multiprocessing as mp
 import datetime
 import uuid
 
-from main import run, export
-from . import RES_FOLDER
+from main import run, export, OUTPUT_FOLDER
 
 
 def process_chunk(chunk: pd.DataFrame, query: str) -> tuple:
@@ -29,8 +32,8 @@ def create_file_with_category(path: str, compression: str, query: str, out_file_
 
     print(f'concatenating chunks')
     res = tuple(zip(func.get() for func in funcs))
-    export(pd.concat(res[0]), os.path.join(RES_FOLDER, out_file_name))
-    export(pd.concat(res[1]), os.path.join(RES_FOLDER, f'id_title_{out_file_name}'))
+    export(pd.concat(res[0]), os.path.join(OUTPUT_FOLDER, out_file_name))
+    export(pd.concat(res[1]), os.path.join(OUTPUT_FOLDER, f'id_title_{out_file_name}'))
 
 
 def create_chunk_files_with_category(path: str, compression: str, query: str, out_file_name: str,
@@ -48,8 +51,8 @@ def create_chunk_files_with_category(path: str, compression: str, query: str, ou
             res = func.get()
             _id = uuid.uuid4()
 
-            export(res[0], os.path.join(RES_FOLDER, f'{_id}_{out_file_name}'))
-            export(res[1], os.path.join(RES_FOLDER, f'{_id}_id_title_{out_file_name}'))
+            export(res[0], os.path.join(OUTPUT_FOLDER, f'{_id}_{out_file_name}'))
+            export(res[1], os.path.join(OUTPUT_FOLDER, f'{_id}_id_title_{out_file_name}'))
 
 
 @run
@@ -57,15 +60,15 @@ def main():
     def read_args() -> argparse.Namespace:
         parser = argparse.ArgumentParser()
         parser.add_argument('--input_path', '-i', help='Full path for input file', type=str, required=True)
-        parser.add_argument('--output_path', '-o', help=f'Name for output file, it will be created in {RES_FOLDER}',
+        parser.add_argument('--output_path', '-o', help=f'Name for output file, it will be created in {OUTPUT_FOLDER}',
                             type=str, required=True)
         parser.add_argument('--category', '-cat', help='Category to filter', type=str, required=True)
         parser.add_argument('--compression', '-comp', help='Input file compression', type=str)
         return parser.parse_args()
 
     args = read_args()
-    if not os.path.exists(RES_FOLDER):
-        os.mkdir(RES_FOLDER)
+    if not os.path.exists(OUTPUT_FOLDER):
+        os.mkdir(OUTPUT_FOLDER)
     if args.input_path.find('.json') < 0:
         raise Exception('input file must have json extension')
 

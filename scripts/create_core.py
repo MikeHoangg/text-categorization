@@ -4,8 +4,8 @@ import pandas as pd
 
 from datetime import datetime
 
-from main import run, export
-from . import RES_FOLDER, NLP
+from main import run, export, OUTPUT_FOLDER
+from scripts import NLP
 
 
 def compare_words(path: str, out_path: str, percent_threshold: float):
@@ -29,7 +29,7 @@ def compare_words(path: str, out_path: str, percent_threshold: float):
         else:
             res.append(word_1.text)
     res = pd.DataFrame(res, columns=['word'])
-    out_path = os.path.join(RES_FOLDER, f'{percent_threshold}_{out_path}')
+    out_path = os.path.join(OUTPUT_FOLDER, f'{percent_threshold}_{out_path}')
     export(res, out_path)
 
 
@@ -39,13 +39,13 @@ def main():
         parser = argparse.ArgumentParser()
         parser.add_argument('--percent_threshold', '-p', help='Threshold for comparison', type=float, required=True)
         parser.add_argument('--input_path', '-i', help='Full path for input file', type=str, required=True)
-        parser.add_argument('--output_path', '-o', help=f'Name for output file, it will be created in {RES_FOLDER}',
+        parser.add_argument('--output_path', '-o', help=f'Name for output file, it will be created in {OUTPUT_FOLDER}',
                             type=str, required=True)
         return parser.parse_args()
 
     args = read_args()
-    if not os.path.exists(RES_FOLDER):
-        os.mkdir(RES_FOLDER)
+    if not os.path.exists(OUTPUT_FOLDER):
+        os.mkdir(OUTPUT_FOLDER)
     if args.input_path.find('.json') < 0:
         raise Exception('input file must have json extension')
     compare_words(args.input_path, args.output_path, 1.5)
