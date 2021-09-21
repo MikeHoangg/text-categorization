@@ -6,14 +6,23 @@ import numpy as np
 
 from datetime import datetime
 
-from main import run
+from main import run, export
 from . import RES_FOLDER, NLP
 
 IS_WORD = re.compile(r'^[a-zA-Z]{3,}$')
 
 
 def count_words(path: str, out_path: str, count_threshold: int = 50):
+    """
+    Function for counting words in each text
+    :param path: path of source file
+    :param out_path: path of result file
+    :param count_threshold: threshold for filtering out words
+    :return:
+    """
+    print(f'threshold - {count_threshold}%')
     data = pd.read_json(path)
+    # cleaning DataFrame from empty texts
     data['title'].replace('', np.nan, inplace=True)
     data.dropna(subset=['title'], inplace=True)
     words = []
@@ -33,11 +42,8 @@ def count_words(path: str, out_path: str, count_threshold: int = 50):
                 res_data.append((word, word_count))
     res = pd.DataFrame(res_data, columns=['word', 'count'])
     res = res.sort_values(by='count', ascending=False)
-    print(f'dataframe has {len(res)} rows')
-    file_path = os.path.join(RES_FOLDER, out_path)
-    print(f'started exporting: {datetime.now()}')
-    res.to_json(file_path)
-    print(f'created {file_path}: {datetime.now()}')
+    out_path = os.path.join(RES_FOLDER, out_path)
+    export(res, out_path)
 
 
 @run

@@ -9,8 +9,14 @@ from . import RES_FOLDER, NLP
 
 
 def compare_words(path: str, out_path: str, percent_threshold: float):
-    print(f'threshold {percent_threshold}%')
-    out_path = os.path.join(RES_FOLDER, f'{percent_threshold}_{out_path}')
+    """
+    Function for comparing words
+    :param path: path of source file
+    :param out_path: path of result file
+    :param percent_threshold: threshold for filtering out words
+    :return:
+    """
+    print(f'threshold - {percent_threshold}%')
     data = pd.read_json(path)
     words = list(NLP(' '.join(data['word'])))
     res = []
@@ -23,6 +29,7 @@ def compare_words(path: str, out_path: str, percent_threshold: float):
         else:
             res.append(word_1.text)
     res = pd.DataFrame(res, columns=['word'])
+    out_path = os.path.join(RES_FOLDER, f'{percent_threshold}_{out_path}')
     export(res, out_path)
 
 
