@@ -9,18 +9,15 @@ from main import run, export, OUTPUT_FOLDER
 from scripts import SPACY_PROCESSOR
 
 
-def compare_words(path: str, out_path: str, percent_threshold: float, word_threshold: int = None) -> pd.DataFrame:
+def create_core(data: pd.DataFrame, percent_threshold: float, word_threshold: int = None) -> pd.DataFrame:
     """
     Function for comparing words
-    :param path: path of source file
-    :param out_path: path of result file
+    :param data: DataFrame obj
     :param percent_threshold: threshold for filtering out words
     :param word_threshold: threshold for selecting top words
-    :return:
+    :return: core DataFrame
     """
-    print(f'percent threshold - {percent_threshold}%')
-    print(f'word threshold - {word_threshold}')
-    data = pd.read_json(path)
+    print(f'percent threshold - {percent_threshold}%; word threshold - {word_threshold}')
     if word_threshold is not None:
         data = data.head(word_threshold)
     words = list(SPACY_PROCESSOR(' '.join(data['word'])))
@@ -38,7 +35,6 @@ def compare_words(path: str, out_path: str, percent_threshold: float, word_thres
     print(f'finished comparing: {datetime.now()}')
 
     res = pd.DataFrame({'word': res_data})
-    export(res, os.path.join(OUTPUT_FOLDER, out_path))
     return res
 
 
@@ -59,7 +55,10 @@ def main():
         os.mkdir(OUTPUT_FOLDER)
     if args.input_path.find('.json') < 0:
         raise Exception('input file must have json extension')
-    compare_words(args.input_path, args.output_path, args.percent_threshold, args.word_threshold)
+
+    data = pd.read_json(args.input_path)
+    res = create_core(data, args.percent_threshold, args.word_threshold)
+    export(res, os.path.join(OUTPUT_FOLDER, args.output_path))
 
 
 if __name__ == '__main__':

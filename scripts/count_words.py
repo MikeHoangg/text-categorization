@@ -14,11 +14,11 @@ from main import run, export, OUTPUT_FOLDER
 from scripts import PUNCTUATION_TABLE, STOP_WORDS, SPACY_PROCESSOR
 
 
-def nltk_process(text: str) -> list:
+def nltk_process_text(text: str) -> list:
     """
     Function for processing text with nltk library
     :param text: text for processing
-    :return: list of tokens
+    :return: list of word tokens
     """
     tokens = word_tokenize(text)
     # clear punctuation
@@ -32,11 +32,11 @@ def nltk_process(text: str) -> list:
     return tokens
 
 
-def spacy_process(text: str) -> list:
+def spacy_process_text(text: str) -> list:
     """
     Function for processing text with spacy library
     :param text: text for processing
-    :return: list of tokens
+    :return: list of word tokens
     """
     return list(
         map(
@@ -50,25 +50,43 @@ def spacy_process(text: str) -> list:
     )
 
 
+def preprocess_data(data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Function for preprocessing DataFrame
+    :param data: DataFrame obj
+    :return: preprocessed DataFrame
+    """
+    # cleaning DataFrame from empty texts
+    data['title'].replace('', np.nan, inplace=True)
+    data.dropna(subset=['title'], inplace=True)
+    # lowercase all data
+    data['title'] = data['title'].str.lower()
+    # dropping duplicate text
+    return data.drop_duplicates(subset=['title'])
+
+
 def process_data(data: pd.DataFrame) -> list:
     """
     Function for processing DataFrame
     :param data: DataFrame obj
-    :return:
+    :return: list of word tokens
     """
     print(f"DataFrame size: {len(data.index)} rows, {len(data.columns)} cols")
-    print(f'processing started {datetime.now()}')
-    words = [spacy_process(title) for title in data['title']]
+
+    print(f'processing started: {datetime.now()}')
+    # words = [nltk_process_text(title) for title in data['title']]
+    words = [spacy_process_text(title) for title in data['title']]
     words = list(itertools.chain.from_iterable(words))
-    print(f'processing finished {datetime.now()}')
+    print(f'processing finished: {datetime.now()}')
+
     return words
 
 
 def multi_process_data(data: pd.DataFrame) -> list:
     """
-    Function for processing DataFrame using threads
+    Function for processing DataFrame using multiprocessing
     :param data: DataFrame obj
-    :return:
+    :return: list of word tokens
     """
     with mp.Pool(mp.cpu_count()) as pool:
         words = pool.map(process_data, np.array_split(data, mp.cpu_count()))
@@ -76,22 +94,13 @@ def multi_process_data(data: pd.DataFrame) -> list:
         return words
 
 
-def count_words(path: str, out_path: str) -> pd.DataFrame:
+def create_word_count(data: pd.DataFrame) -> pd.DataFrame:
     """
     Function for counting words in each text
-    :param path: path of source file
-    :param out_path: path of result file
-    :return:
+    :param data: DataFrame obj
+    :return: DataFrame with word count
     """
-    data = pd.read_json(path)
-
-    # cleaning DataFrame from empty texts
-    data['title'].replace('', np.nan, inplace=True)
-    data.dropna(subset=['title'], inplace=True)
-    # lowercase all data
-    data['title'] = data['title'].str.lower()
-    # dropping duplicate text
-    data = data.drop_duplicates(subset=['title'])
+    data = preprocess_data(data)
 
     # words = process_data(data)
     words = multi_process_data(data)
@@ -100,9 +109,7 @@ def count_words(path: str, out_path: str) -> pd.DataFrame:
     count_series = pd.Series(words).value_counts()
     print(f'finished counting: {datetime.now()}')
 
-    res = pd.DataFrame({'word': count_series.index, 'count': count_series.values})
-    export(res, os.path.join(OUTPUT_FOLDER, out_path))
-    return res
+    return pd.DataFrame({'word': count_series.index, 'count': count_series.values})
 
 
 @run
@@ -119,7 +126,10 @@ def main():
         os.mkdir(OUTPUT_FOLDER)
     if args.input_path.find('.json') < 0:
         raise Exception('input file must have json extension')
-    count_words(args.input_path, args.output_path)
+
+    data = pd.read_json(args.input_path)
+    res = create_word_count(data)
+    export(res, os.path.join(OUTPUT_FOLDER, args.output_path))
 
 
 if __name__ == '__main__':
