@@ -9,7 +9,7 @@ from main import run, export, OUTPUT_FOLDER
 from scripts import SPACY_PROCESSOR
 
 
-def compare_words(path: str, out_path: str, percent_threshold: float, word_threshold: int) -> pd.DataFrame:
+def compare_words(path: str, out_path: str, percent_threshold: float, word_threshold: int = None) -> pd.DataFrame:
     """
     Function for comparing words
     :param path: path of source file
@@ -21,7 +21,8 @@ def compare_words(path: str, out_path: str, percent_threshold: float, word_thres
     print(f'percent threshold - {percent_threshold}%')
     print(f'word threshold - {word_threshold}')
     data = pd.read_json(path)
-    data = data.head(word_threshold)
+    if word_threshold is not None:
+        data = data.head(word_threshold)
     words = list(SPACY_PROCESSOR(' '.join(data['word'])))
     res_data = []
 
@@ -45,8 +46,7 @@ def compare_words(path: str, out_path: str, percent_threshold: float, word_thres
 def main():
     def read_args() -> argparse.Namespace:
         parser = argparse.ArgumentParser()
-        parser.add_argument('--word_threshold', '-w', help='Threshold for comparison', type=int, required=False,
-                            default=100)
+        parser.add_argument('--word_threshold', '-w', help='Threshold for comparison', type=int, required=False)
         parser.add_argument('--percent_threshold', '-p', help='Threshold for comparison', type=float, required=False,
                             default=50)
         parser.add_argument('--input_path', '-i', help='Full path for input file', type=str, required=True)
