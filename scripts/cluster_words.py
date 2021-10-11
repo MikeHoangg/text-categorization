@@ -28,6 +28,7 @@ def cluster_words(data: pd.DataFrame, num_of_clusters: int = 20) -> pd.DataFrame
 def main():
     def read_args() -> argparse.Namespace:
         parser = argparse.ArgumentParser()
+        parser.add_argument('--num_cluster', '-n', help='Number of clusters', type=int, required=False)
         parser.add_argument('--input_path', '-i', help='Full path for input file', type=str, required=True)
         parser.add_argument('--output_path', '-o', help=f'Name for output file, it will be created in {OUTPUT_FOLDER}',
                             type=str, required=True)
@@ -40,7 +41,7 @@ def main():
         raise Exception('input file must have json extension')
 
     data = pd.read_json(args.input_path)
-    res = cluster_words(data)
+    res = cluster_words(data, args.num_cluster)
     export(res, os.path.join(OUTPUT_FOLDER, args.output_path))
 
 
