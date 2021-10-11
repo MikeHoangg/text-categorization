@@ -9,18 +9,18 @@ from main import run, export, OUTPUT_FOLDER
 from scripts import SPACY_PROCESSOR
 
 
-def create_core(data: pd.DataFrame, percent_threshold: float, word_threshold: int = None) -> pd.DataFrame:
+def create_core(data: list, percent_threshold: float, word_threshold: int = None) -> pd.DataFrame:
     """
     Function for comparing words
-    :param data: DataFrame obj
+    :param data: list of words
     :param percent_threshold: threshold for filtering out words
     :param word_threshold: threshold for selecting top words
     :return: core DataFrame
     """
     print(f'percent threshold - {percent_threshold}%; word threshold - {word_threshold}')
     if word_threshold is not None:
-        data = data.head(word_threshold)
-    words = list(SPACY_PROCESSOR(' '.join(data['word'])))
+        data = data[:word_threshold]
+    words = list(SPACY_PROCESSOR(' '.join(data)))
     res_data = []
 
     # comparing word pairs
@@ -56,9 +56,10 @@ def main():
     if args.input_path.find('.json') < 0:
         raise Exception('input file must have json extension')
 
-    data = pd.read_json(args.input_path)
-    res = create_core(data, args.percent_threshold, args.word_threshold)
-    export(res, os.path.join(OUTPUT_FOLDER, args.output_path))
+    clusters = pd.read_json(args.input_path)
+    for idx, cluster in enumerate(clusters['cluster']):
+        res = create_core(cluster, args.percent_threshold, args.word_threshold)
+        export(res, os.path.join(OUTPUT_FOLDER, f'{str(idx)}_{args.output_path}'))
 
 
 if __name__ == '__main__':
