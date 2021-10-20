@@ -1,6 +1,7 @@
 import itertools
 import os
 import argparse
+import re
 
 import pandas as pd
 import numpy as np
@@ -12,6 +13,9 @@ from nltk.tokenize import word_tokenize
 from main import run, export, OUTPUT_FOLDER
 
 from scripts import PUNCTUATION_TABLE, STOP_WORDS, SPACY_PROCESSOR
+
+CONSONANTS = re.compile(r'^[bcdfghjklmnpqrstvwxyz]+$')
+VOWELS = re.compile(r'^[aeiou]+$')
 
 
 def nltk_process_text(text: str) -> list:
@@ -29,6 +33,10 @@ def nltk_process_text(text: str) -> list:
     tokens = [w for w in tokens if w not in STOP_WORDS]
     # clear single characters
     tokens = [w for w in tokens if len(w) > 1]
+    # clear words that consist only from consonants
+    tokens = [w for w in tokens if not CONSONANTS.match(w)]
+    # clear words that consist only from vows
+    tokens = [w for w in tokens if not VOWELS.match(w)]
     return tokens
 
 
@@ -43,7 +51,19 @@ def spacy_process_text(text: str) -> list:
             lambda y: y.text,
             # filter out stop words, not alphabetic symbols, without vector, single characters
             filter(
-                lambda x: not x.is_stop and x.is_alpha and not x.is_oov and len(x.text) > 1,
+                lambda x:
+                # clear not alphabetic
+                x.is_alpha
+                # clear stop words
+                and not x.is_stop
+                # clear tokens without vector
+                and not x.is_oov
+                # clear single characters
+                and len(x.text) > 1
+                # clear words that consist only from consonants
+                and not CONSONANTS.match(x.text)
+                # clear words that consist only from vows
+                and not VOWELS.match(x.text),
                 SPACY_PROCESSOR(text)
             )
         )
