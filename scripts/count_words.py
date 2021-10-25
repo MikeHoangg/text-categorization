@@ -8,36 +8,13 @@ import numpy as np
 import multiprocessing as mp
 
 from datetime import datetime
-from nltk.tokenize import word_tokenize
 
 from main import run, export, OUTPUT_FOLDER
 
-from scripts import PUNCTUATION_TABLE, STOP_WORDS, SPACY_PROCESSOR
+from scripts import SPACY_PROCESSOR
 
 CONSONANTS = re.compile(r'^[bcdfghjklmnpqrstvwxyz]+$')
 VOWELS = re.compile(r'^[aeiou]+$')
-
-
-def nltk_process_text(text: str) -> list:
-    """
-    Function for processing text with nltk library
-    :param text: text for processing
-    :return: list of word tokens
-    """
-    tokens = word_tokenize(text)
-    # clear punctuation
-    tokens = [w.translate(PUNCTUATION_TABLE) for w in tokens]
-    # clear not alphabetic
-    tokens = [w for w in tokens if w.isalpha()]
-    # clear stop words
-    tokens = [w for w in tokens if w not in STOP_WORDS]
-    # clear single characters
-    tokens = [w for w in tokens if len(w) > 1]
-    # clear words that consist only from consonants
-    tokens = [w for w in tokens if not CONSONANTS.match(w)]
-    # clear words that consist only from vows
-    tokens = [w for w in tokens if not VOWELS.match(w)]
-    return tokens
 
 
 def spacy_process_text(text: str) -> list:
