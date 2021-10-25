@@ -15,13 +15,17 @@ def drop_empty(df: pd.DataFrame, column: str) -> pd.DataFrame:
 
 
 @run
-def lowercase():
+def lowercase(df: pd.DataFrame, column: str) -> pd.DataFrame:
     """
-
+    Function for lower casing column data
     """
-    pass
+    df[column] = df[column].str.lower()
+    return df
 
 
 @run
-def drop_duplicate():
-    pass
+def drop_duplicate(df: pd.DataFrame, column: str) -> pd.DataFrame:
+    """
+    Function for dropping duplicate values by column
+    """
+    return df.drop_duplicates(subset=[column])

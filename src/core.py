@@ -1,12 +1,13 @@
-from modulefinder import Module
+import itertools
 
 import spacy
 import pandas as pd
 
+from modulefinder import Module
+
 from config import load_config
 
 
-# todo: rename class
 class Processor:
     def __init__(self, config_path: str, dataset_path: str):
         config = load_config(config_path)
@@ -22,11 +23,17 @@ class Processor:
         # todo: add dataset path validation
         self.dataset = pd.read_json(dataset_path)
 
-    def run_pipeline(self, module: Module, pipeline: list, data: pd.DataFrame) -> dict:
+    def run_pipeline(self, module: Module, pipeline: list, df: pd.DataFrame) -> dict:
         """
         Method that runs a pipeline, using module functions
         """
         for pipe in pipeline:
             pipe_func = getattr(module, pipe)
-            data = pipe_func(data)
-        return data
+            df = pipe_func(df)
+        return df
+
+    def get_tokens(self, df: pd.DataFrame):
+        """
+        Method for getting tokens from DataFrame
+        """
+        return list(itertools.chain.from_iterable([self._spacy_processor(title) for title in df[self.process_field]]))

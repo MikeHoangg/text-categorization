@@ -17,9 +17,10 @@ def run(func) -> Callable:
     def wrapper(*args, **kwargs):
         start = datetime.now()
         print(f'{func.__name__} start: {start}')
-        func(*args, **kwargs)
+        res = func(*args, **kwargs)
         end = datetime.now()
         print(f'{func.__name__} end: {end}', f'total time: {(end - start).seconds} seconds')
+        return res
 
     return wrapper
 
