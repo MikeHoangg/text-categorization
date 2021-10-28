@@ -71,6 +71,7 @@ class ProductTextProcessor:
             'is_oov': token.is_oov,
             'is_stop': token.is_stop,
             'is_alpha': token.is_alpha,
+            'vector': token.vector,
         }
 
     def _get_tokens(self, df: pd.DataFrame) -> list:
