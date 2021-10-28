@@ -1,3 +1,7 @@
+"""
+Module for preprocessing data
+Initial filtering, data modification, etc.
+"""
 import pandas as pd
 import numpy as np
 
@@ -5,7 +9,7 @@ from ..utils import run
 
 
 @run
-def drop_empty(df: pd.DataFrame, column: str) -> pd.DataFrame:
+def drop_empty(df: pd.DataFrame, column: str, *args, **kwargs) -> pd.DataFrame:
     """
     Function for dropping empty rows by column value
     """
@@ -15,7 +19,7 @@ def drop_empty(df: pd.DataFrame, column: str) -> pd.DataFrame:
 
 
 @run
-def lowercase(df: pd.DataFrame, column: str) -> pd.DataFrame:
+def lowercase(df: pd.DataFrame, column: str, *args, **kwargs) -> pd.DataFrame:
     """
     Function for lower casing column data
     """
@@ -24,7 +28,7 @@ def lowercase(df: pd.DataFrame, column: str) -> pd.DataFrame:
 
 
 @run
-def drop_duplicate(df: pd.DataFrame, column: str) -> pd.DataFrame:
+def drop_duplicate(df: pd.DataFrame, column: str, *args, **kwargs) -> pd.DataFrame:
     """
     Function for dropping duplicate values by column
     """

@@ -1,18 +1,16 @@
 process_field: title
 spacy_core: en_core_web_lg
-config:
+pipeline:
   preprocess:
     - drop_empty
     - lowercase
     - drop_duplicate
-  process:
+  token_process:
     - drop_not_alpha
     - drop_stop_words
     - drop_no_vector
     - drop_character
     - drop_fully_consonants
     - drop_fully_vowels
-  pipeline:
+  process:
     - count_words
-    - cluster_words
-    - create_core

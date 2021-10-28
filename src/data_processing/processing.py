@@ -1,55 +1,36 @@
-import re
-
-from typing import Iterable
+"""
+Module with core functions for processing data
+"""
+import pandas as pd
 
 from ..utils import run
 
 
 @run
-def drop_not_alpha(tokens: Iterable) -> list:
+def count_words(tokens: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
     """
-    Function for dropping non alphabetic tokens
+    Function that creates DataFrame of token count
+    tokens DataFrame example:
+                  word
+        0          abc
+        1          abc
+        2      example
+              ...
+    result DataFrame example:
+                 word  count
+        0         abc  2
+        1     example  1
+              ...   ...
     """
-    return [token for token in tokens if token.is_alpha]
+    count_series = pd.Series([token for token in tokens['text']]).value_counts()
+    return pd.DataFrame({'word': count_series.index, 'count': count_series.values})
 
 
 @run
-def drop_stop_words(tokens: Iterable) -> list:
-    """
-    Function for dropping stop words
-    """
-    return [token for token in tokens if not token.is_stop]
+def cluster_words(*args, **kwargs):
+    pass
 
 
 @run
-def drop_no_vector(tokens: Iterable) -> list:
-    """
-    Function for dropping tokens without vectors
-    """
-    return [token for token in tokens if not token.is_oov]
-
-
-@run
-def drop_character(tokens: Iterable) -> list:
-    """
-    Function for dropping single characters
-    """
-    return [token for token in tokens if len(token.text) > 1]
-
-
-@run
-def drop_fully_consonants(tokens: Iterable) -> list:
-    """
-    Function for dropping tokens that fully consist of consonant characters
-    """
-    reg = re.compile(r'^[bcdfghjklmnpqrstvwxyz]+$')
-    return [token for token in tokens if not reg.match(token.text)]
-
-
-@run
-def drop_fully_vowels(tokens: Iterable) -> list:
-    """
-    Function for dropping tokens that fully consist of vowel characters
-    """
-    reg = re.compile(r'^[aeiou]+$')
-    return [token for token in tokens if not reg.match(token.text)]
+def create_core(*args, **kwargs):
+    pass

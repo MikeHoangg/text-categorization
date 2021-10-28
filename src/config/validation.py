@@ -1,6 +1,9 @@
+"""
+Module for configuration file validation
+"""
 import trafaret as t
 
-from ..data_processing import preprocessing, processing, core
+from ..data_processing import preprocessing, processing, token_processing
 
 INVALID_SPACY_CORE = 'invalid_spacy_core'
 INVALID_FUNCTION = 'invalid_function'
@@ -39,15 +42,16 @@ class ModuleAttrString(t.String):
         return value
 
 
+# MARK: main configurator
 CONFIG_FILE_VALIDATOR = t.Dict(
     {
         t.Key('process_field'): t.String,
         t.Key('spacy_core'): SpacyCoreString,
-        t.Key('config'): t.Dict(
+        t.Key('pipeline'): t.Dict(
             {
                 t.Key('preprocess'): t.List(ModuleAttrString(preprocessing)),
-                t.Key('process'): t.List(ModuleAttrString(processing)),
-                t.Key('pipeline'): t.List(ModuleAttrString(core))
+                t.Key('token_process'): t.List(ModuleAttrString(token_processing)),
+                t.Key('process'): t.List(ModuleAttrString(processing))
             }
         )
     }
