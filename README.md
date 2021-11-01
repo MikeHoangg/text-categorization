@@ -19,3 +19,7 @@ pip install -r requirements
 ```
 python -m spacy download en
 ```
+
+## Usage:
+1. Create pipeline config using example - [ref](https://github.com/MikeHoangg/text-categorization/blob/master/config.yaml)
+2. Use `ProductTextProcessor` class from [this](https://github.com/MikeHoangg/text-categorization/blob/master/src/base.py) module for running your pipeline
