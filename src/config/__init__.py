@@ -6,7 +6,7 @@ from .validation import CONFIG_FILE_VALIDATOR
 from ..errors import BrokenConfigException
 
 
-def load_config(config_path: str):
+def load_config(config_path: str) -> dict:
     """
     Function that loads data from configuration file
     """
