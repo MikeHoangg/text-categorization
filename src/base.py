@@ -10,7 +10,6 @@ import pandas as pd
 import numpy as np
 
 from multiprocessing import Pool
-from typing import Any
 from spacy.tokens import Token
 
 from .config import load_config
@@ -22,47 +21,54 @@ class ProductTextProcessor:
     Class for processing DataFrame of product offers
     With defined pipeline it runs functions from builtin modules for processing
     """
+    _dataset: pd.DataFrame = ...
 
     def __init__(self, config_path: str, dataset_path: str):
         config = load_config(config_path)
-        self.process_field = config['process_field']
 
+        # loading spacy processor
         self.spacy_core = config['spacy_core']
         self._spacy_processor = spacy.load(self.spacy_core)
 
+        # assigning pipelines
         self.preprocess_pipeline = config['pipeline']['preprocess']
         self.token_process_pipeline = config['pipeline']['token_process']
         self.process_pipeline = config['pipeline']['process']
 
-        # todo: add dataset path validation
-        self.dataset = pd.read_json(dataset_path)
+        # assigning field of initial dataset for processing
+        self.process_field = config['process_field']
+        self.load_dataset(dataset_path)
 
-    def run_pipeline(self, module: builtins, pipeline: list, *args, **kwargs) -> Any:
+    def load_dataset(self, dataset_path):
+        if not os.path.exists(dataset_path):
+            raise FileNotFoundError(f'{dataset_path} - no such file.')
+        self._dataset = pd.read_json(dataset_path)
+
+    @staticmethod
+    def run_pipeline(module: builtins, pipeline: list, df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
         """
         Method that runs a pipeline, using module functions
         """
-        res = None
         for pipe in pipeline:
             pipe_func = getattr(module, pipe)
-            res = pipe_func(*args, **kwargs)
-        return res
+            df = pipe_func(df, *args, **kwargs)
+        return df
 
-    # todo: doesn't run pipeline, fix it
     def run(self) -> pd.DataFrame:
         """
         Method for running pipeline
         """
-        df = self._data_preprocessing(df=self.dataset, column=self.process_field)
-        tokens = self._tokens_processing(df)
-        return self._data_processing(tokens=tokens)
+        preprocessed_df = self._data_preprocessing(self._dataset, column=self.process_field)
+        tokens_df = self._tokens_processing(preprocessed_df)
+        return self._data_processing(tokens_df)
 
-    def _data_preprocessing(self, *args, **kwargs) -> pd.DataFrame:
+    def _data_preprocessing(self, df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
         """
         Method for preprocessing DataFrame
         """
-        return self.run_pipeline(preprocessing, self.preprocess_pipeline, *args, **kwargs)
+        return self.run_pipeline(preprocessing, self.preprocess_pipeline, df, *args, **kwargs)
 
-    def token_modifier(self, token: Token) -> dict:
+    def __token_modifier(self, token: Token) -> dict:
         """
         Method for modifying spacy tokens into basic type
         """
@@ -72,25 +78,25 @@ class ProductTextProcessor:
             'is_stop': token.is_stop,
             'is_alpha': token.is_alpha,
             'vector': token.vector,
+            'vector_norm': token.vector_norm,
         }
 
-    def _get_tokens(self, df: pd.DataFrame) -> list:
+    def _get_tokens(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for getting tokens from DataFrame
         """
         tokens = list(itertools.chain.from_iterable([self._spacy_processor(title) for title in df[self.process_field]]))
-        tokens = [self.token_modifier(token) for token in tokens]
-        return self.run_pipeline(token_processing, self.token_process_pipeline, tokens=tokens)
+        tokens = [self.__token_modifier(token) for token in tokens]
+        return pd.DataFrame.from_records(tokens)
 
-    # todo: change structure to pd.DataFrame instead of list
-    def _tokens_processing(self, df: pd.DataFrame) -> list:
+    def _tokens_processing(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for getting tokens from DataFrame
         """
         with Pool() as pool:
-            tokens = pool.map(self._get_tokens, np.array_split(df, os.cpu_count()))
-            tokens = list(itertools.chain.from_iterable(tokens))
-            return tokens
+            token_dataframes = pool.map(self._get_tokens, np.array_split(df, os.cpu_count()))
+            tokens = pd.concat(token_dataframes)
+        return self.run_pipeline(token_processing, self.token_process_pipeline, tokens)
 
-    def _data_processing(self, *args, **kwargs) -> Any:
-        return self.run_pipeline(processing, self.process_pipeline, *args, **kwargs)
+    def _data_processing(self, df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
+        return self.run_pipeline(processing, self.process_pipeline, df, *args, **kwargs)

@@ -2,58 +2,54 @@
 Module for processing tokens
 This module works with tokens structure similar to https://spacy.io/api/token
 """
-import re
-
-from typing import Iterable
+import pandas as pd
 
 from ..utils import run
 
 
 @run
-def drop_not_alpha(tokens: Iterable, *args, **kwargs) -> list:
+def drop_not_alpha(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
     """
     Function for dropping non alphabetic tokens
     """
-    return [token for token in tokens if token['is_alpha']]
+    return df[df['is_alpha']]
 
 
 @run
-def drop_stop_words(tokens: Iterable, *args, **kwargs) -> list:
+def drop_stop_words(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
     """
     Function for dropping stop words
     """
-    return [token for token in tokens if not token['is_stop']]
+    return df[~df['is_stop']]
 
 
 @run
-def drop_no_vector(tokens: Iterable, *args, **kwargs) -> list:
+def drop_no_vector(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
     """
     Function for dropping tokens without vectors
     """
-    return [token for token in tokens if not token['is_oov']]
+    return df[~df['is_oov']]
 
 
 @run
-def drop_character(tokens: Iterable, *args, **kwargs) -> list:
+def drop_character(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
     """
     Function for dropping single characters
     """
-    return [token for token in tokens if len(token['text']) > 1]
+    return df[df['text'].str.len() > 1]
 
 
 @run
-def drop_fully_consonants(tokens: Iterable, *args, **kwargs) -> list:
+def drop_fully_consonants(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
     """
     Function for dropping tokens that fully consist of consonant characters
     """
-    reg = re.compile(r'^[bcdfghjklmnpqrstvwxyz]+$')
-    return [token for token in tokens if not reg.match(token['text'])]
+    return df[~df['text'].str.fullmatch(r'^[bcdfghjklmnpqrstvwxyz]+$')]
 
 
 @run
-def drop_fully_vowels(tokens: Iterable, *args, **kwargs) -> list:
+def drop_fully_vowels(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
     """
     Function for dropping tokens that fully consist of vowel characters
     """
-    reg = re.compile(r'^[aeiou]+$')
-    return [token for token in tokens if not reg.match(token['text'])]
+    return df[~df['text'].str.fullmatch(r'^[aeiou]+$')]
