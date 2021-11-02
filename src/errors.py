@@ -1,6 +1,9 @@
 """
 Module for custom errors
 """
+# error codes
+INVALID_SPACY_CORE = 'invalid_spacy_core'
+INVALID_FUNCTION = 'invalid_function'
 
 
 class BrokenConfigException(Exception):

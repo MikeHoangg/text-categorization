@@ -4,9 +4,7 @@ Module for configuration file validation
 import trafaret as t
 
 from ..data_processing import preprocessing, processing, token_processing
-
-INVALID_SPACY_CORE = 'invalid_spacy_core'
-INVALID_FUNCTION = 'invalid_function'
+from ..errors import INVALID_SPACY_CORE, INVALID_FUNCTION
 
 
 class SpacyCoreString(t.String):
