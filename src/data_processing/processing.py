@@ -1,13 +1,14 @@
 """
 Module with core functions for processing data
 """
-
+import os
 import numpy
 import pandas as pd
 import numpy as np
 
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
+from sklearn import svm
 
 from ..utils import run
 
@@ -70,7 +71,32 @@ def cluster_words_kmeans(df: pd.DataFrame, num_of_clusters: int = 10, *args, **k
 
 
 @run
-def create_core(percent_threshold: float, df: pd.DataFrame, *args, **kwargs) -> list:
+def cluster_words_svm(df: pd.DataFrame, training_dataset_path: str, *args, **kwargs):
+    """
+    Function for clustering words into groups using SVM method
+    example input DataFrame:
+            text    ... vector
+        0   abc     ... [...]
+        1   example ... [...]
+            ...     ... ...
+    example output DataFrame:
+            text    ... vector  cluster
+        0   abc     ... [...]   1
+        1   example ... [...]   2
+            ...     ... ...     ...
+    """
+    if not os.path.exists(training_dataset_path):
+        raise FileNotFoundError(f'{training_dataset_path} - no such file.')
+    training_dataset = pd.read_json(training_dataset_path)
+    clf = svm.SVC()
+    clf.fit(np.array([*training_dataset['vector']]), training_dataset['cluster'])
+    clusters = clf.predict(np.array([*df['vector']]))
+    df['cluster'] = clusters
+    return df
+
+
+@run
+def create_core(df: pd.DataFrame, percent_threshold: float, *args, **kwargs) -> list:
     """
     Function for creating core of tokens by comparing them and filtering by threshold
     """
