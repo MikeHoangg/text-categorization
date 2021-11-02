@@ -45,13 +45,21 @@ class ModuleAttrString(t.String):
 # MARK: main configurator
 CONFIG_FILE_VALIDATOR = t.Dict(
     {
-        t.Key('process_field'): t.String,
         t.Key('spacy_core'): SpacyCoreString,
         t.Key('pipeline'): t.Dict(
             {
-                t.Key('preprocess'): t.List(ModuleAttrString(preprocessing)),
-                t.Key('token_process'): t.List(ModuleAttrString(token_processing)),
-                t.Key('process'): t.List(ModuleAttrString(processing))
+                t.Key('preprocess'): t.Dict({
+                    t.Key('pipes'): t.List(ModuleAttrString(preprocessing)),
+                    t.Key('args', optional=True): t.Dict(allow_extra='*')
+                }),
+                t.Key('token_process'): t.Dict({
+                    t.Key('pipes'): t.List(ModuleAttrString(token_processing)),
+                    t.Key('args', optional=True): t.Dict(allow_extra='*')
+                }),
+                t.Key('process'): t.Dict({
+                    t.Key('pipes'): t.List(ModuleAttrString(processing)),
+                    t.Key('args', optional=True): t.Dict(allow_extra='*')
+                })
             }
         )
     }

@@ -1,16 +1,23 @@
-process_field: title
 spacy_core: en_core_web_lg
 pipeline:
   preprocess:
-    - drop_empty
-    - lowercase
-    - drop_duplicate
+    pipes:
+      - drop_empty
+      - lowercase
+      - drop_duplicate
+    args:
+      column: title
   token_process:
-    - drop_not_alpha
-    - drop_stop_words
-    - drop_no_vector
-    - drop_character
-    - drop_fully_consonants
-    - drop_fully_vowels
+    pipes:
+      - drop_not_alpha
+      - drop_stop_words
+      - drop_no_vector
+      - drop_character
+      - drop_fully_consonants
+      - drop_fully_vowels
   process:
-    - count_words
+    pipes:
+      - count_words
+      - cluster_words_kmeans
+    args:
+      num_of_clusters: 10

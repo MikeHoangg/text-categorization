@@ -35,8 +35,6 @@ class ProductTextProcessor:
         self.token_process_pipeline = config['pipeline']['token_process']
         self.process_pipeline = config['pipeline']['process']
 
-        # assigning field of initial dataset for processing
-        self.process_field = config['process_field']
         self.load_dataset(dataset_path)
 
     def load_dataset(self, dataset_path):
@@ -58,15 +56,16 @@ class ProductTextProcessor:
         """
         Method for running pipeline
         """
-        preprocessed_df = self._data_preprocessing(self._dataset, column=self.process_field)
+        preprocessed_df = self._data_preprocessing(self._dataset)
         tokens_df = self._tokens_processing(preprocessed_df)
         return self._data_processing(tokens_df)
 
-    def _data_preprocessing(self, df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
+    def _data_preprocessing(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for preprocessing DataFrame
         """
-        return self.run_pipeline(preprocessing, self.preprocess_pipeline, df, *args, **kwargs)
+        return self.run_pipeline(preprocessing, self.preprocess_pipeline['pipes'], df,
+                                 **self.preprocess_pipeline.get('args', {}))
 
     def __token_modifier(self, token: Token) -> dict:
         """
@@ -95,8 +94,10 @@ class ProductTextProcessor:
         """
         with Pool() as pool:
             token_dataframes = pool.map(self._get_tokens, np.array_split(df, os.cpu_count()))
-            tokens = pd.concat(token_dataframes)
-        return self.run_pipeline(token_processing, self.token_process_pipeline, tokens)
+            df = pd.concat(token_dataframes)
+        return self.run_pipeline(token_processing, self.token_process_pipeline['pipes'], df,
+                                 **self.token_process_pipeline.get('args', {}))
 
-    def _data_processing(self, df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
-        return self.run_pipeline(processing, self.process_pipeline, df, *args, **kwargs)
+    def _data_processing(self, df: pd.DataFrame) -> pd.DataFrame:
+        return self.run_pipeline(processing, self.process_pipeline['pipes'], df,
+                                 **self.process_pipeline.get('args', {}))
