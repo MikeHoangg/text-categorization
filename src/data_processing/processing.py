@@ -29,7 +29,7 @@ def count_words(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
             ...     ... ...
     """
     count_series = df['text'].value_counts()
-    df = df.drop_duplicates(subset=['text']).reset_index(drop=True)
+    df = df.drop_duplicates(subset=['text'])
     df['count'] = df.apply(lambda token: count_series.at[token['text']], axis=1)
     return df
 

@@ -12,6 +12,7 @@ import numpy as np
 from multiprocessing import Pool
 from spacy.tokens import Token
 
+from . import errors
 from .config import load_config
 from .data_processing import preprocessing, token_processing, processing
 
@@ -84,9 +85,11 @@ class ProductTextProcessor:
         """
         Method for getting tokens from DataFrame
         """
-        tokens = list(itertools.chain.from_iterable([self._spacy_processor(title) for title in df[self.process_field]]))
-        tokens = [self.__token_modifier(token) for token in tokens]
-        return pd.DataFrame.from_records(tokens)
+        if column := self.token_process_pipeline.get('args', {}).get('column'):
+            tokens = list(itertools.chain.from_iterable([self._spacy_processor(title) for title in df[column]]))
+            tokens = [self.__token_modifier(token) for token in tokens]
+            return pd.DataFrame.from_records(tokens)
+        raise errors.MissingArgException('token_process', 'column')
 
     def _tokens_processing(self, df: pd.DataFrame) -> pd.DataFrame:
         """
