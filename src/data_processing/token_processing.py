@@ -11,19 +11,20 @@ import spacy
 from multiprocessing import Pool
 from typing import List
 
-from sklearn.base import BaseEstimator, TransformerMixin
 from spacy.tokens import Token
 
 from ..utils import run
+from . import BasePipe
 
 
-class SpacyTokenNormalizer(BaseEstimator, TransformerMixin):
+class SpacyTokenNormalizer(BasePipe):
     """
     This class works with tokens structure similar to https://spacy.io/api/token
     """
+
     def __init__(self, pipeline: List[str], spacy_core: str = 'en_core_web_lg'):
+        super().__init__(pipeline)
         self.spacy_core = spacy_core
-        self.pipeline = pipeline
         self._spacy_processor = spacy.load(spacy_core)
 
     @run
@@ -96,9 +97,6 @@ class SpacyTokenNormalizer(BaseEstimator, TransformerMixin):
         tokens = list(itertools.chain.from_iterable([self._tokenize(sentence) for sentence in data]))
         return pd.DataFrame.from_records(tokens)
 
-    def fit(self, X, y=None):
-        return self
-
     def transform(self, data: List[str]) -> pd.DataFrame:
         """
         Method for transforming data
@@ -106,6 +104,4 @@ class SpacyTokenNormalizer(BaseEstimator, TransformerMixin):
         with Pool() as pool:
             token_dataframes = pool.map(self._get_tokens, np.array_split(data, os.cpu_count()))
             df = pd.concat(token_dataframes)
-        for pipe in self.pipeline:
-            df = getattr(self, pipe)(df)
-        return df
+        return self.run_pipeline(df)

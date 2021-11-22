@@ -11,16 +11,19 @@ from typing import List
 from sklearn import svm
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
-from sklearn.base import BaseEstimator, TransformerMixin
 
 from ..utils import run
+from . import BasePipe
 
 
-class SpacyTokenProcessor(BaseEstimator, TransformerMixin):
+class SpacyTokenProcessor(BasePipe):
+    """
+    Class for processing spacy tokens
+    """
 
     def __init__(self, pipeline: List[str], percent_threshold: float, num_of_clusters: int = 10,
                  training_dataset_path: str = None):
-        self.pipeline = pipeline
+        super().__init__(pipeline)
         self.num_of_clusters = num_of_clusters
         self.training_dataset_path = training_dataset_path
         self.percent_threshold = percent_threshold
@@ -129,14 +132,3 @@ class SpacyTokenProcessor(BaseEstimator, TransformerMixin):
                 res.append(token_1['text'])
 
         return res
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Method for transforming data
-        """
-        for pipe in self.pipeline:
-            df = getattr(self, pipe)(df)
-        return df

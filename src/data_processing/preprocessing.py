@@ -8,15 +8,17 @@ import numpy as np
 
 from typing import List
 
-from sklearn.base import BaseEstimator, TransformerMixin
-
 from ..utils import run
+from . import BasePipe
 
 
-class Preprocessor(BaseEstimator, TransformerMixin):
+class Preprocessor(BasePipe):
+    """
+    Class for preprocessing initial dataset
+    """
 
     def __init__(self, pipeline: List[str], column: str):
-        self.pipeline = pipeline
+        super().__init__(pipeline)
         self.column = column
 
     @run
@@ -51,13 +53,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         df[self.column] = df[self.column].str.translate(str.maketrans('', '', string.punctuation))
         return df
 
-    def fit(self, X, y=None):
-        return self
-
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for transforming data
         """
-        for pipe in self.pipeline:
-            df = getattr(self, pipe)(df)
-        return df[self.column]
+        return self.run_pipeline(df)[self.column]
