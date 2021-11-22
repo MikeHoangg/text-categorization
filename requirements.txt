@@ -4,3 +4,4 @@ spacy
 sklearn
 PyYAML
 trafaret
+gensim
