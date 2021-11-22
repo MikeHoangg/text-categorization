@@ -21,7 +21,6 @@ class Preprocessor(BasePipe):
         super().__init__(pipeline)
         self.column = column
 
-    @run
     def drop_empty(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Function for dropping empty rows by column value
@@ -30,7 +29,6 @@ class Preprocessor(BasePipe):
         df.dropna(subset=[self.column], inplace=True)
         return df
 
-    @run
     def lowercase(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Function for lower casing column data
@@ -38,14 +36,12 @@ class Preprocessor(BasePipe):
         df[self.column] = df[self.column].str.lower()
         return df
 
-    @run
     def drop_duplicate(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Function for dropping duplicate values by column
         """
         return df.drop_duplicates(subset=[self.column])
 
-    @run
     def remove_punctuation(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Function for removing punctuation symbols
@@ -53,6 +49,7 @@ class Preprocessor(BasePipe):
         df[self.column] = df[self.column].str.translate(str.maketrans('', '', string.punctuation))
         return df
 
+    @run
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for transforming data

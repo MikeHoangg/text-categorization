@@ -20,7 +20,7 @@ from ..utils import run
 from . import BasePipe
 
 
-class SpacyTokenNormalizer(BasePipe):
+class SpacyTokenizer(BasePipe):
     """
     This class works with tokens structure similar to https://spacy.io/api/token
     """
@@ -30,42 +30,36 @@ class SpacyTokenNormalizer(BasePipe):
         self.spacy_core = spacy_core
         self._spacy_processor = spacy.load(spacy_core)
 
-    @run
     def drop_not_alpha(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping non alphabetic tokens
         """
         return df[df['is_alpha']]
 
-    @run
     def drop_stop_words(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping stop words
         """
         return df[~df['is_stop']]
 
-    @run
     def drop_no_vector(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping tokens without vectors
         """
         return df[df['has_vector']]
 
-    @run
     def drop_character(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping single characters
         """
         return df[df['text'].str.len() > 1]
 
-    @run
     def drop_fully_consonants(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping tokens that fully consist of consonant characters
         """
         return df[~df['text'].str.fullmatch(r'^[bcdfghjklmnpqrstvwxyz]+$', flags=re.IGNORECASE)]
 
-    @run
     def drop_fully_vowels(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping tokens that fully consist of vowel characters
@@ -111,47 +105,41 @@ class SpacyTokenNormalizer(BasePipe):
         return self.run_pipeline(df)
 
 
-class TokenNormalizer(BasePipe):
+class Tokenizer(BasePipe):
     """
     Class for tokenization using gensim
     """
 
-    @run
     def drop_not_alpha(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping non alphabetic tokens
         """
         return df[df['is_alpha']]
 
-    @run
     def drop_stop_words(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping stop words
         """
         return df[~df['is_stop']]
 
-    @run
     def drop_no_vector(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping tokens without vectors
         """
         return df[df['has_vector']]
 
-    @run
     def drop_character(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping single characters
         """
         return df[df['text'].str.len() > 1]
 
-    @run
     def drop_fully_consonants(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping tokens that fully consist of consonant characters
         """
         return df[~df['text'].str.fullmatch(r'^[bcdfghjklmnpqrstvwxyz]+$', flags=re.IGNORECASE)]
 
-    @run
     def drop_fully_vowels(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Method for dropping tokens that fully consist of vowel characters
@@ -195,6 +183,7 @@ class TokenNormalizer(BasePipe):
         tokens = list(itertools.chain.from_iterable([self._tokenize(sentence) for sentence in data]))
         return pd.DataFrame.from_records(tokens)
 
+    @run
     def transform(self, data: List[str]) -> pd.DataFrame:
         """
         Method for transforming data

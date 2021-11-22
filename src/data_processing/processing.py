@@ -12,7 +12,6 @@ from sklearn import svm
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-from ..utils import run
 from . import BasePipe
 
 
@@ -28,7 +27,6 @@ class SpacyTokenProcessor(BasePipe):
         self.training_dataset_path = training_dataset_path
         self.percent_threshold = percent_threshold
 
-    @run
     def count_words(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Function that creates DataFrame of token count
@@ -49,7 +47,6 @@ class SpacyTokenProcessor(BasePipe):
         df['count'] = df.apply(lambda token: count_series.at[token['text']], axis=1)
         return df
 
-    @run
     def cluster_words_kmeans(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Function for clustering words into groups using KMeans method
@@ -83,7 +80,6 @@ class SpacyTokenProcessor(BasePipe):
         df['cluster'] = max(res, key=lambda x: x[1])[2]
         return df
 
-    @run
     def cluster_words_svm(self, df: pd.DataFrame):
         """
         Function for clustering words into groups using SVM method
@@ -107,7 +103,6 @@ class SpacyTokenProcessor(BasePipe):
         df['cluster'] = clusters
         return df
 
-    @run
     def create_core(self, df: pd.DataFrame) -> list:
         """
         Function for creating core of tokens by comparing them and filtering by threshold

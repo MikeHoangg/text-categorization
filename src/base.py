@@ -70,21 +70,27 @@ class ProductSpacyTextProcessor(BaseProcessor):
             t.Key('pipeline'): t.Dict(
                 {
                     t.Key('preprocess'): t.Dict({
-                        t.Key('pipes'): t.List(validation.ModuleAttrString(preprocessing.Preprocessor)),
+                        t.Key('processor'): validation.ModuleAttrString(preprocessing),
+                        t.Key('pipes'): t.List(t.String),
                         t.Key('args'): t.Dict(
                             {t.Key('column'): t.String},
                             allow_extra='*'
                         )
                     }),
                     t.Key('token_process'): t.Dict({
-                        t.Key('pipes'): t.List(validation.ModuleAttrString(token_processing.SpacyTokenNormalizer)),
+                        t.Key('processor'): validation.ModuleAttrString(token_processing),
+                        t.Key('pipes'): t.List(t.String),
                         t.Key('args'): t.Dict(
                             {t.Key('spacy_core'): validation.SpacyCoreString},
+                            allow_extra='*'
                         )
                     }),
                     t.Key('process'): t.Dict({
-                        t.Key('pipes'): t.List(validation.ModuleAttrString(processing.SpacyTokenProcessor)),
-                        t.Key('args', optional=True): t.Dict(allow_extra='*')
+                        t.Key('processor'): validation.ModuleAttrString(processing),
+                        t.Key('pipes'): t.List(t.String),
+                        t.Key('args', optional=True): t.Dict(
+                            allow_extra='*'
+                        )
                     })
                 }
             )
@@ -114,7 +120,7 @@ class ProductSpacyTextProcessor(BaseProcessor):
             ),
             (
                 'tokenizer',
-                token_processing.SpacyTokenNormalizer(
+                token_processing.SpacyTokenizer(
                     pipeline=self.token_process_pipeline['pipes'],
                     spacy_core=self.token_process_pipeline['args']['spacy_core']
                 )

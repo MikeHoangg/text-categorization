@@ -1,5 +1,6 @@
 pipeline:
   preprocess:
+    processor: Preprocessor
     pipes:
       - drop_empty
       - remove_punctuation
@@ -8,6 +9,7 @@ pipeline:
     args:
       column: title
   token_process:
+    processor: SpacyTokenizer
     pipes:
       - drop_not_alpha
       - drop_stop_words
@@ -18,6 +20,7 @@ pipeline:
     args:
       spacy_core: en_core_web_lg
   process:
+    processor: SpacyTokenProcessor
     pipes:
       - count_words
       - cluster_words_kmeans
