@@ -108,8 +108,8 @@ class ProductSpacyTextProcessor(BaseProcessor):
             (
                 'preprocessor',
                 preprocessing.Preprocessor(
-                    pipeline=self.token_process_pipeline['pipes'],
-                    column=self.token_process_pipeline['args']['column']
+                    pipeline=self.preprocess_pipeline['pipes'],
+                    column=self.preprocess_pipeline['args']['column']
                 )
             ),
             (
