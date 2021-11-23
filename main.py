@@ -1,39 +1,17 @@
-import os
+import logging
 
-import pandas as pd
+from src.base import ProductTextProcessor
 
-from typing import Callable
-from datetime import datetime
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(name)-25s %(levelname)-8s %(message)s",
+    datefmt="%y-%m-%d %H:%M:%S"
+)
 
-BASE_FOLDER = os.getcwd()
-OUTPUT_FOLDER = os.path.join(BASE_FOLDER, 'data')
+if __name__ == '__main__':
+    config_file = '/home/mikehoang/projects/khpi/text-categorization/config.yaml'
+    dataset_file = '/home/mikehoang/projects/khpi/text-categorization/dumps/shoes_title_dataset.json'
 
-
-def run(func) -> Callable:
-    """
-    Decorator that shows running time of a process
-    :param func: wrapped function
-    :return:
-    """
-    def wrapper():
-        start = datetime.now()
-        print(f'start: {start}')
-        func()
-        end = datetime.now()
-        print(f'end: {end}', )
-        print(f'finished in: {(end - start).seconds} seconds')
-
-    return wrapper
-
-
-def export(df: pd.DataFrame, file_path: str):
-    """
-    Function for exporting DataFrame to json file
-    :param df: DataFrame for exporting
-    :param file_path: path of export file
-    :return:
-    """
-    print(f'dataframe has {len(df)} rows')
-    print(f'started exporting {file_path}: {datetime.now()}')
-    df.to_json(file_path)
-    print(f'created {file_path}: {datetime.now()}')
+    processor = ProductTextProcessor(config_file, dataset_file)
+    res = processor.run()
+    pass

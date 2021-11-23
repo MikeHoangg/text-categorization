@@ -60,7 +60,7 @@ class BaseProcessor:
         raise NotImplementedError
 
 
-class ProductSpacyTextProcessor(BaseProcessor):
+class ProductTextProcessor(BaseProcessor):
     """
     Class for processing DataFrame of product offers
     With defined pipeline it runs functions from builtin modules for processing
@@ -73,15 +73,13 @@ class ProductSpacyTextProcessor(BaseProcessor):
                         t.Key('processor'): validation.ModuleAttrString(preprocessing),
                         t.Key('pipes'): t.List(t.String),
                         t.Key('args'): t.Dict(
-                            {t.Key('column'): t.String},
                             allow_extra='*'
                         )
                     }),
                     t.Key('token_process'): t.Dict({
                         t.Key('processor'): validation.ModuleAttrString(token_processing),
                         t.Key('pipes'): t.List(t.String),
-                        t.Key('args'): t.Dict(
-                            {t.Key('spacy_core'): validation.SpacyCoreString},
+                        t.Key('args', optional=True): t.Dict(
                             allow_extra='*'
                         )
                     }),
@@ -109,25 +107,37 @@ class ProductSpacyTextProcessor(BaseProcessor):
     def process_pipeline(self):
         return self.config['pipeline']['process']
 
+    @property
+    def preprocessor(self):
+        return getattr(preprocessing, self.config['pipeline']['preprocess']['processor'])
+
+    @property
+    def token_processor(self):
+        return getattr(token_processing, self.config['pipeline']['token_process']['processor'])
+
+    @property
+    def processor(self):
+        return getattr(processing, self.config['pipeline']['process']['processor'])
+
     def run(self) -> object:
         pipeline = Pipeline([
             (
                 'preprocessor',
-                preprocessing.Preprocessor(
+                self.preprocessor(
                     pipeline=self.preprocess_pipeline['pipes'],
-                    column=self.preprocess_pipeline['args']['column']
+                    **self.preprocess_pipeline.get('args')
                 )
             ),
             (
-                'tokenizer',
-                token_processing.SpacyTokenizer(
+                'token_processor',
+                self.token_processor(
                     pipeline=self.token_process_pipeline['pipes'],
-                    spacy_core=self.token_process_pipeline['args']['spacy_core']
+                    **self.token_process_pipeline.get('args')
                 )
             ),
             (
                 'processor',
-                processing.SpacyTokenProcessor(
+                self.processor(
                     pipeline=self.process_pipeline['pipes'],
                     **self.process_pipeline.get('args')
                 )

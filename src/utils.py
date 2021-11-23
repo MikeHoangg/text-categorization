@@ -6,7 +6,6 @@ import pandas as pd
 import logging
 
 from typing import Callable
-from datetime import datetime
 from pathlib import Path
 
 # MARK: root folder
@@ -20,11 +19,9 @@ def run(func) -> Callable:
     """
 
     def wrapper(*args, **kwargs):
-        start = datetime.now()
-        logging.info(f'{func.__name__} start: {start}')
+        logging.info(f'{func.__repr__()} start.')
         res = func(*args, **kwargs)
-        end = datetime.now()
-        logging.info(f'{func.__name__} end: {end}', f'total time: {(end - start).seconds} seconds')
+        logging.info(f'{func.__repr__()} end.')
         return res
 
     return wrapper

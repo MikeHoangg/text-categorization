@@ -9,20 +9,21 @@ pipeline:
     args:
       column: title
   token_process:
-    processor: SpacyTokenizer
+    processor: GensimTokenProcessor
     pipes:
       - drop_not_alpha
       - drop_stop_words
-      - drop_no_vector
       - drop_character
       - drop_fully_consonants
       - drop_fully_vowels
+      - count_tokens
+      - vectorize
+      - drop_no_vector
     args:
-      spacy_core: en_core_web_lg
+      gensim_model_path: /home/mikehoang/projects/khpi/text-categorization/dumps/GoogleNews-vectors-negative300.bin
   process:
-    processor: SpacyTokenProcessor
+    processor: TokenProcessor
     pipes:
-      - count_words
       - cluster_words_kmeans
     args:
       num_of_clusters: 10

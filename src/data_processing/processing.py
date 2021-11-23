@@ -15,7 +15,7 @@ from sklearn.metrics import silhouette_score
 from . import BasePipe
 
 
-class SpacyTokenProcessor(BasePipe):
+class TokenProcessor(BasePipe):
     """
     Class for processing spacy tokens
     """
@@ -26,26 +26,6 @@ class SpacyTokenProcessor(BasePipe):
         self.num_of_clusters = num_of_clusters
         self.training_dataset_path = training_dataset_path
         self.percent_threshold = percent_threshold
-
-    def count_words(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Function that creates DataFrame of token count
-        tokens DataFrame example:
-                text    ...
-            0   abc     ...
-            1   abc     ...
-            2   example ...
-                ...     ...
-        result DataFrame example:
-                word    ... count
-            0   abc     ... 2
-            1   example ... 1
-                ...     ... ...
-        """
-        count_series = df['text'].value_counts()
-        df = df.drop_duplicates(subset=['text'])
-        df['count'] = df.apply(lambda token: count_series.at[token['text']], axis=1)
-        return df
 
     def cluster_words_kmeans(self, df: pd.DataFrame) -> pd.DataFrame:
         """
