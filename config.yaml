@@ -20,7 +20,7 @@ pipeline:
       - vectorize
       - drop_no_vector
     args:
-      gensim_model_path: /home/mikehoang/projects/khpi/text-categorization/dumps/GoogleNews-vectors-negative300.bin
+      gensim_model_path: 'text-categorization/dumps/GoogleNews-vectors-negative300.bin'
   process:
     processor: TokenProcessor
     pipes:

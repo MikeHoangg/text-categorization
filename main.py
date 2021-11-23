@@ -9,8 +9,9 @@ logging.basicConfig(
 )
 
 if __name__ == '__main__':
-    config_file = '/home/mikehoang/projects/khpi/text-categorization/config.yaml'
-    dataset_file = '/home/mikehoang/projects/khpi/text-categorization/dumps/shoes_title_dataset.json'
+    # config_file = 'config.yaml'
+    config_file = 'dumps/spacy_config.yaml'
+    dataset_file = 'dumps/shoes_title_dataset.json'
 
     processor = ProductTextProcessor(config_file, dataset_file)
     res = processor.run()
