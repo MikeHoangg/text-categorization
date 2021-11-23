@@ -83,18 +83,15 @@ class TokenProcessor(BasePipe):
         df['cluster'] = clusters
         return df
 
-    def create_core(self, df: pd.DataFrame) -> list:
-        """
-        Function for creating core of tokens by comparing them and filtering by threshold
-        """
-        res = list()
-
+    def _create_core(self, df: pd.DataFrame) -> List[str]:
         def token_similarity(vector: np.array, other_vector: np.array, vector_norm: float,
                              other_vector_norm: float) -> float:
             """
             Function for comparing tokens using vectors
             """
             return np.dot(vector, other_vector) / (vector_norm * other_vector_norm)
+
+        res = list()
 
         # comparing word pairs
         percent_threshold = self.percent_threshold / 100
@@ -107,3 +104,12 @@ class TokenProcessor(BasePipe):
                 res.append(token_1['text'])
 
         return res
+
+    def create_core(self, df: pd.DataFrame) -> list:
+        """
+        Function for creating core of tokens by comparing them and filtering by threshold
+        """
+
+        if 'cluster' in df.columns:
+            return [self._create_core(group) for _, group in df.groupby('cluster')]
+        return self._create_core(df)
