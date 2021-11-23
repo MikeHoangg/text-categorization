@@ -84,12 +84,11 @@ class TokenProcessor(BasePipe):
         return df
 
     def _create_core(self, df: pd.DataFrame) -> List[str]:
-        def token_similarity(vector: np.array, other_vector: np.array, vector_norm: float,
-                             other_vector_norm: float) -> float:
+        def token_similarity(vector: np.array, other_vector: np.array) -> float:
             """
             Function for comparing tokens using vectors
             """
-            return np.dot(vector, other_vector) / (vector_norm * other_vector_norm)
+            return np.dot(vector, other_vector)
 
         res = list()
 
@@ -97,8 +96,7 @@ class TokenProcessor(BasePipe):
         percent_threshold = self.percent_threshold / 100
         for _, token_1 in df.iterrows():
             for _, token_2 in df.iterrows():
-                if token_similarity(token_1['vector'], token_2['vector'], token_1['vector_norm'],
-                                    token_2['vector_norm']) < percent_threshold:
+                if token_similarity(token_1['vector'], token_2['vector']) < percent_threshold:
                     break
             else:
                 res.append(token_1['text'])

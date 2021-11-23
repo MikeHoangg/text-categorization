@@ -109,15 +109,13 @@ class SpacyTokenProcessor(TokenFilteringMixin, BasePipe):
         self.STOPWORDS = self._spacy_processor.Defaults.stop_words
 
     def _vectorize(self, df: pd.DataFrame) -> pd.DataFrame:
-        vectors_list, has_vector_list, vector_norm_list = list(), list(), list()
+        vectors_list, has_vector_list = list(), list()
         for token in df['text']:
             v = self._spacy_processor(str(token))[0]
             vectors_list.append(v.vector)
             has_vector_list.append(not v.is_oov)
-            vector_norm_list.append(v.vector_norm)
         df['vector'] = vectors_list
         df['has_vector'] = has_vector_list
-        df['vector_norm'] = vector_norm_list
         return df
 
 
@@ -133,20 +131,17 @@ class GensimTokenProcessor(TokenFilteringMixin, BasePipe):
         self.STOPWORDS = STOPWORDS
 
     def _vectorize(self, df: pd.DataFrame) -> pd.DataFrame:
-        vectors_list, has_vector_list, vector_norm_list = list(), list(), list()
+        vectors_list, has_vector_list = list(), list()
         for token in df['text']:
             try:
                 vector = self._w2v_model[str(token)]
                 vectors_list.append(vector)
                 has_vector_list.append(True)
-                vector_norm_list.append(np.linalg.norm(vector))
             except KeyError:
                 vectors_list.append(np.array([0] * 300, dtype=np.float32))
                 has_vector_list.append(False)
-                vector_norm_list.append(0)
         df['vector'] = vectors_list
         df['has_vector'] = has_vector_list
-        df['vector_norm'] = vector_norm_list
         return df
 
     def vectorize(self, df: pd.DataFrame) -> pd.DataFrame:
