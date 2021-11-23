@@ -117,7 +117,7 @@ class SpacyTokenProcessor(TokenFilteringMixin, BasePipe):
             vector_norm_list.append(v.vector_norm)
         df['vector'] = vectors_list
         df['has_vector'] = has_vector_list
-        df['vector_norm'] = vectors_list
+        df['vector_norm'] = vector_norm_list
         return df
 
 
@@ -146,7 +146,7 @@ class GensimTokenProcessor(TokenFilteringMixin, BasePipe):
                 vector_norm_list.append(0)
         df['vector'] = vectors_list
         df['has_vector'] = has_vector_list
-        df['vector_norm'] = vectors_list
+        df['vector_norm'] = vector_norm_list
         return df
 
     def vectorize(self, df: pd.DataFrame) -> pd.DataFrame:
