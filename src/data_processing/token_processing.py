@@ -127,7 +127,8 @@ class GensimTokenProcessor(TokenFilteringMixin, BasePipe):
     def __init__(self, pipeline: List[str], gensim_model_path: str):
         super().__init__(pipeline)
         self.gensim_model_path = gensim_model_path
-        self._w2v_model = models.KeyedVectors.load_word2vec_format(self.gensim_model_path, binary=True)
+        binary = self.gensim_model_path.endswith('.bin')
+        self._w2v_model = models.KeyedVectors.load_word2vec_format(self.gensim_model_path, binary=binary)
         self.STOPWORDS = STOPWORDS
 
     def _vectorize(self, df: pd.DataFrame) -> pd.DataFrame:
