@@ -2,6 +2,8 @@
 Module with core functions for processing data
 """
 import os
+from multiprocessing import Pool
+
 import numpy
 import pandas as pd
 import numpy as np
@@ -27,6 +29,16 @@ class TokenProcessor(BasePipe):
         self.training_dataset_path = training_dataset_path
         self.percent_threshold = percent_threshold
 
+    def _get_kmeans_cluster_labels(self, data: numpy.ndarray, num_of_clusters: int):
+        """
+        Method for getting silhouette score and cluster labels
+        """
+        kmean_tokens = KMeans(n_clusters=num_of_clusters)
+        kmean_tokens.fit(data)
+        cluster_labels = kmean_tokens.labels_
+
+        return num_of_clusters, silhouette_score(data, cluster_labels), cluster_labels
+
     def cluster_words_kmeans(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Function for clustering words into groups using KMeans method
@@ -42,19 +54,10 @@ class TokenProcessor(BasePipe):
                 ...     ... ...     ...
         """
 
-        def get_kmeans_cluster_labels(data: numpy.ndarray, num_of_clusters: int):
-            """
-            Method for getting silhouette score and cluster labels
-            """
-            kmean_tokens = KMeans(n_clusters=num_of_clusters)
-            kmean_tokens.fit(data)
-            cluster_labels = kmean_tokens.labels_
-
-            return num_of_clusters, silhouette_score(data, cluster_labels), cluster_labels
-
         vector_data = np.array([*df['vector']])
-
-        res = [get_kmeans_cluster_labels(vector_data, x) for x in range(2, self.num_of_clusters + 1)]
+        with Pool() as pool:
+            res = pool.starmap(self._get_kmeans_cluster_labels,
+                               [(vector_data, x) for x in range(2, self.num_of_clusters + 1)])
 
         # assigning cluster for each word, by determining best cluster number
         df['cluster'] = max(res, key=lambda x: x[1])[2]

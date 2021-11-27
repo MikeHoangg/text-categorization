@@ -50,7 +50,7 @@ class Preprocessor(BasePipe):
         return df
 
     @run
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform(self, df: pd.DataFrame) -> pd.Series:
         """
         Method for transforming data
         """
