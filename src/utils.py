@@ -28,10 +28,20 @@ def run(func) -> Callable:
 
 
 @run
-def export(df: pd.DataFrame, file_path: str):
+def export_json(df: pd.DataFrame, file_path: str):
     """
     Function for exporting DataFrame to json file
     """
     logging.info(f'Exporting {file_path}...')
     df.to_json(file_path)
+    logging.info(f'Created {file_path}')
+
+
+@run
+def export_csv(df: pd.DataFrame, file_path: str):
+    """
+    Function for exporting DataFrame to csv file
+    """
+    logging.info(f'Exporting {file_path}...')
+    df.to_csv(file_path)
     logging.info(f'Created {file_path}')

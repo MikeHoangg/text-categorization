@@ -20,12 +20,13 @@ pipeline:
       - vectorize
       - drop_no_vector
     args:
-      gensim_model_path: 'text-categorization/dumps/GoogleNews-vectors-negative300.bin'
+      gensim_model_path: 'text-categorization/data/google_model/GoogleNews-vectors-negative300.bin'
   process:
     processor: TokenProcessor
     pipes:
-      - cluster_words_kmeans
+      - cluster_words_svm
+      - create_core
     args:
       num_of_clusters: 10
-      percent_threshold: 10
-      training_dataset_path: 'text-categorization/data/svm_train.json'
+      percent_threshold: 70
+      training_dataset_path: 'text-categorization/data/google_model/svm_train.json'

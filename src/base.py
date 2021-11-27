@@ -29,7 +29,12 @@ class BaseProcessor:
     def load_dataset(self, dataset_path):
         if not os.path.exists(dataset_path):
             raise FileNotFoundError(f'{dataset_path} - no such file.')
-        self._dataset = pd.read_json(dataset_path)
+        if dataset_path.endswith('.json'):
+            self._dataset = pd.read_json(dataset_path)
+        elif dataset_path.endswith('.csv'):
+            self._dataset = pd.read_csv(dataset_path)
+        else:
+            raise Exception(f'{dataset_path} has unknown file type for loading.')
 
     def load_config(self, config_path: str):
         """

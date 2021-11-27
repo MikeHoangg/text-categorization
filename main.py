@@ -1,6 +1,7 @@
 import logging
 
 from src.base import ProductTextProcessor
+from src.utils import export_json
 
 logging.basicConfig(
     level=logging.INFO,
@@ -9,10 +10,11 @@ logging.basicConfig(
 )
 
 if __name__ == '__main__':
-    # config_file = 'config.yaml'
-    config_file = 'dumps/spacy_config.yaml'
-    dataset_file = 'dumps/shoes_title_dataset.json'
+    dataset_file = 'data/dataset/shoes_title_description_dataset.csv'
+
+    config_file = 'data/gensim/config.yaml'
+    output = 'data/gensim/cores.json'
 
     processor = ProductTextProcessor(config_file, dataset_file)
     res = processor.run()
-    pass
+    export_json(res, output)

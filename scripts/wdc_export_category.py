@@ -9,7 +9,7 @@ import multiprocessing as mp
 import datetime
 import uuid
 
-from main import run, export, OUTPUT_FOLDER
+from main import run, export_json, OUTPUT_FOLDER
 
 
 def process_chunk(chunk: pd.DataFrame, query: str) -> tuple:
@@ -32,8 +32,8 @@ def create_file_with_category(path: str, compression: str, query: str, out_file_
 
     print(f'concatenating chunks')
     res = tuple(zip(func.get() for func in funcs))
-    export(pd.concat(res[0]), os.path.join(OUTPUT_FOLDER, out_file_name))
-    export(pd.concat(res[1]), os.path.join(OUTPUT_FOLDER, f'id_title_{out_file_name}'))
+    export_json(pd.concat(res[0]), os.path.join(OUTPUT_FOLDER, out_file_name))
+    export_json(pd.concat(res[1]), os.path.join(OUTPUT_FOLDER, f'id_title_{out_file_name}'))
 
 
 def create_chunk_files_with_category(path: str, compression: str, query: str, out_file_name: str,
@@ -51,8 +51,8 @@ def create_chunk_files_with_category(path: str, compression: str, query: str, ou
             res = func.get()
             _id = uuid.uuid4()
 
-            export(res[0], os.path.join(OUTPUT_FOLDER, f'{_id}_{out_file_name}'))
-            export(res[1], os.path.join(OUTPUT_FOLDER, f'{_id}_id_title_{out_file_name}'))
+            export_json(res[0], os.path.join(OUTPUT_FOLDER, f'{_id}_{out_file_name}'))
+            export_json(res[1], os.path.join(OUTPUT_FOLDER, f'{_id}_id_title_{out_file_name}'))
 
 
 @run
