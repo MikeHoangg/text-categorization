@@ -22,7 +22,7 @@ class TokenProcessor(BasePipe):
     Class for processing spacy tokens
     """
 
-    def __init__(self, pipeline: List[str], percent_threshold: float, num_of_clusters: int = 10,
+    def __init__(self, pipeline: List[str], percent_threshold: float = 70, num_of_clusters: int = 10,
                  training_dataset_path: str = None):
         super().__init__(pipeline)
         self.num_of_clusters = num_of_clusters
@@ -112,5 +112,6 @@ class TokenProcessor(BasePipe):
         """
 
         if 'cluster' in df.columns:
-            return [self._create_core(group) for _, group in df.groupby('cluster')]
+            with Pool() as pool:
+                return pool.map(self._create_core, [group for _, group in df.groupby('cluster')])
         return self._create_core(df)
